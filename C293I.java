@@ -76,7 +76,7 @@ public class C293I {
     }
 
     public static class state0 extends state {
-        public String[] paths = {"white", "red"};
+        public String[] paths = {"red", "white"};
 
         public String[] getPath() {
             return paths;
@@ -114,7 +114,7 @@ public class C293I {
     }
 
     private static class state2 extends state {
-        String[] paths = {"black", "red"};
+        String[] paths = {"red", "black"};
 
         public String[] getPath() {
             return paths;
@@ -196,13 +196,13 @@ public class C293I {
         switch (color) {
             case "white":
                 return 0;
-            case "black":
-                return 1;
             case "red":
+                return 1;
+            case "black":
                 return 2;
-            case "orange":
-                return 3;
             case "green":
+                return 3;
+            case "orange":
                 return 4;
             default:
                 return 0;
@@ -211,28 +211,40 @@ public class C293I {
 
 
     // Recursive depth-first search
-    private static void dfs(state[] states, int i, int colors[]) {
-        System.out.print(i + ":");
-        System.out.print(Arrays.toString(states[i].getPath()));
+    private static void dfs(state[] states, int i, int[] colors) {
         for (String c : states[i].getPath()) {
             int cInt = cToI(c);
             int t = i;
+            int[] copy = colors.clone();
             if (colors[cInt] != 0) {
                 i = states[i].next(c);
                 colors[cInt]--;
-                System.out.println(c + "->" + i);
-                if(i!=6)
+                if (i != 6)
                     dfs(states, i, colors);
+                else if (i == 6 && allZero(colors)) {
+                    System.out.println("defusable");
+                    System.exit(0);
+                }
             }
             i = t;
+            colors = copy.clone();
         }
 
+    }
+
+    private static boolean allZero(int[] c) {
+        for (int i : c) {
+            if (i != 0)
+                return false;
+        }
+        return true;
     }
 
 
     public static void main(String[] args) {
         Scanner in = new Scanner(System.in);
         if (!args[0].equals("-b")) {
+            System.out.println("Enter a sequence of wires:");
             while (true) {
                 process(in.nextLine().toLowerCase());
                 if (failed) {
@@ -245,15 +257,15 @@ public class C293I {
                 }
             }
         } else {
-            // white black red orange green
+            // white red black orange green
+            System.out.println("Enter amount of each color wire, i.e. \"white 3\", in order white, red, black, orange, green:");
             int[] colors = new int[5];
             for (int i = 0; i < 5; i++) {
                 colors[i] = Integer.parseInt(in.nextLine().replaceAll("[^0-9]", ""));
             }
-            System.out.println(Arrays.toString(colors));
             state[] states = {new state0(), new state1(), new state2(), new state3(), new state4(), new state5()};
             dfs(states, 0, colors);
-            System.out.println(Arrays.toString(colors));
+            System.out.println("not defusable");
         }
     }
 }
